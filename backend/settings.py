@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-ezi!zq@#fwxxq)43^!scn^mh1^pw1#hm+)go(%&b*u$l7f4eov
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "https://nutricalctest.onrender.com",
+    "nutricalctest.onrender.com",
     "127.0.0.1",  # Localhost for testing
     "localhost"
 ]
