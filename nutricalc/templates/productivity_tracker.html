@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Productivity Tracker
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center">Dietitian Productivity Tracker</h2>
+
+        <div class="card p-4 shadow-sm">
+            <h4>Log a Consultation</h4>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <label for="patient_name" class="form-label mt-3">Patient Name:</label>
+                <input type="text" name="patient_name" class="form-control" required>
+
+                <label for="mrn" class="form-label mt-3">Medical Record Number (MRN):</label>
+                <input type="text" name="mrn" class="form-control" required>
+
+                <label for="consult_type" class="form-label mt-3">Consultation Type:</label>
+                <select name="consult_type" class="form-select">
+                    <option value="initial">Initial Assessment</option>
+                    <option value="followup">Follow-Up</option>
+                    <option value="icu">ICU Consult</option>
+                    <option value="outpatient">Outpatient Consult</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <label for="start_time" class="form-label mt-3">Start Time:</label>
+                <input type="datetime-local" name="start_time" class="form-control" required>
+
+                <label for="end_time" class="form-label mt-3">End Time:</label>
+                <input type="datetime-local" name="end_time" class="form-control" required>
+
+                <button type="submit" class="btn btn-primary mt-3">Log Consultation</button>
+            </form>
+        </div>
+
+        <div class="mt-5">
+            <h3>Consultation Records</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Name</th>
+                        <th>MRN</th>
+                        <th>Consult Type</th>
+                        <th>Duration (minutes)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consult in consultations %}
+                        <tr>
+                            <td>{{ consult.start_time|date:"Y-m-d" }}</td>
+                            <td>{{ consult.patient_name }}</td>
+                            <td>{{ consult.mrn }}</td>
+                            <td>{{ consult.consult_type }}</td>
+                            <td>{{ consult.duration }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No consultations logged yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

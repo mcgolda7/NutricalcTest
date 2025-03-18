@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Nutrition Received Tracker
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center">Nutrition Received Tracker</h2>
+
+        <div class="card p-4 shadow-sm">
+            <label for="target_mls" class="form-label">Target Nutrition (mls):</label>
+            <input type="number" id="target_mls" class="form-control" value="900" min="0">
+
+            <label for="feed_type" class="form-label mt-3">Select Feed Type:</label>
+            <select id="feed_type" class="form-select">
+                <option value="ensure_original">Ensure Original</option>
+                <option value="ensure_plus">Ensure Plus</option>
+                <option value="ensure_high_protein">Ensure High Protein</option>
+                <!-- Need to swap this to all nutricia products will be added here -->
+            </select>
+
+            <button class="btn btn-primary mt-3" onclick="addDay()">+ Add Day</button>
+        </div>
+
+        <div id="days_container" class="mt-4"></div>
+    </div>
+
+    <script>
+        let dayCount = 0;
+        let feedData = {
+            "ensure_original": { calories: 1.06, protein: 0.04, carbs: 0.14, fat: 0.035 }, // per ml
+            "ensure_plus": { calories: 1.5, protein: 0.06, carbs: 0.18, fat: 0.045 },
+            "ensure_high_protein": { calories: 1.3, protein: 0.075, carbs: 0.17, fat: 0.04 }
+        };
+
+        function addDay() {
+            dayCount++;
+            let dayDiv = document.createElement("div");
+            dayDiv.className = "card p-4 shadow-sm mt-3";
+            dayDiv.innerHTML = `
+                <h4>Day ${dayCount}</h4>
+                <label class="form-label">Received Nutrition (mls):</label>
+                <input type="number" id="received_mls_${dayCount}" class="form-control" min="0" oninput="calculateDay(${dayCount})">
+
+                <label class="form-label mt-3">PO Intake Calories:</label>
+                <input type="number" id="po_cal_${dayCount}" class="form-control" min="0" oninput="calculateDay(${dayCount})">
+
+                <label class="form-label mt-3">PO Intake Protein (g):</label>
+                <input type="number" id="po_protein_${dayCount}" class="form-control" min="0" oninput="calculateDay(${dayCount})">
+
+                <label class="form-label mt-3">Reason for Missed Feed (if any):</label>
+                <select id="missed_reason_${dayCount}" class="form-select">
+                    <option value="">No Missed Feeds</option>
+                    <option value="fasting">Fasting for Surgery</option>
+                    <option value="gi_intolerance">GI Intolerance</option>
+                    <option value="nausea_vomiting">Nausea/Vomiting</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <h5 class="mt-3">Adequacy: <span id="adequacy_${dayCount}">0%</span></h5>
+                <h5 class="mt-3">Calories Received: <span id="calories_${dayCount}">0</span> kcal</h5>
+                <h5>Protein Received: <span id="protein_${dayCount}">0</span> g</h5>
+                <h5>Carbs Received: <span id="carbs_${dayCount}">0</span> g</h5>
+                <h5>Fat Received: <span id="fat_${dayCount}">0</span> g</h5>
+            `;
+            document.getElementById("days_container").appendChild(dayDiv);
+        }
+
+        function calculateDay(day) {
+            let targetMls = parseFloat(document.getElementById("target_mls").value) || 0;
+            let receivedMls = parseFloat(document.getElementById(`received_mls_${day}`).value) || 0;
+            let poCalories = parseFloat(document.getElementById(`po_cal_${day}`).value) || 0;
+            let poProtein = parseFloat(document.getElementById(`po_protein_${day}`).value) || 0;
+            let feedType = document.getElementById("feed_type").value;
+            
+            let feedValues = feedData[feedType];
+
+            let receivedCalories = (receivedMls * feedValues.calories) + poCalories;
+            let receivedProtein = (receivedMls * feedValues.protein) + poProtein;
+            let receivedCarbs = receivedMls * feedValues.carbs;
+            let receivedFat = receivedMls * feedValues.fat;
+
+            let adequacy = (receivedMls / targetMls) * 100;
+
+            document.getElementById(`adequacy_${day}`).textContent = `${adequacy.toFixed(2)}%`;
+            document.getElementById(`calories_${day}`).textContent = receivedCalories.toFixed(2);
+            document.getElementById(`protein_${day}`).textContent = receivedProtein.toFixed(2);
+            document.getElementById(`carbs_${day}`).textContent = receivedCarbs.toFixed(2);
+            document.getElementById(`fat_${day}`).textContent = receivedFat.toFixed(2);
+        }
+    </script>
+{% endblock %}

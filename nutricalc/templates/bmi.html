@@ -1,0 +1,45 @@
+{% extends 'base.html' %}  <!-- Ensures the existing layout and tabs remain intact -->
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center">BMI Calculator</h2>
+
+    <form method="POST" class="form-group">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <label for="weight">Weight (kg):</label>
+                <input type="number" name="weight" step="0.1" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="height">Height (cm):</label>
+                <input type="number" name="height" step="0.1" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Calculate</button>
+    </form>
+
+    {% if bmi %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Your BMI Results:</h3>
+                <p><strong>BMI:</strong> {{ bmi }}</p>
+                <p><strong>Category:</strong> {{ bmi_category }}</p>
+                <p><strong>Weight:</strong> {{ weight }} kg</p>
+                <p><strong>Height:</strong> {{ height }} cm</p>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Ideal Body Weight (Healthy BMI Range):</h3>
+                <ul>
+                    <li><strong>BMI 20:</strong> {{ ibw_20 }} kg</li>
+                    <li><strong>BMI 22.5:</strong> {{ ibw_22_5 }} kg</li>
+                    <li><strong>BMI 25:</strong> {{ ibw_25 }} kg</li>
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

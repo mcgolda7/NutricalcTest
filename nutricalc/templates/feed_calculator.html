@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Feed Calculator
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center">Enteral Feed Calculator</h2>
+
+        <div class="card p-4 shadow-sm">
+            <h4>Calculate Nutrition from Enteral Feeds</h4>
+
+            <label for="feed_rate" class="form-label mt-3">Feed Rate (ml/hour):</label>
+            <input type="number" id="feed_rate" class="form-control" min="1" value="30">
+
+            <label for="duration" class="form-label mt-3">Duration (hours):</label>
+            <input type="number" id="duration" class="form-control" min="1" max="24" value="16">
+
+            <label for="feed_type" class="form-label mt-3">Select Feed Type:</label>
+            <select id="feed_type" class="form-select">
+                <option value="nutrison_standard">Nutrison Standard</option>
+                <option value="nutrison_2kcal">Nutrison 2kcal</option>
+                <option value="nutrison_energy">Nutrison Energy</option>
+                <option value="nutrison_fibre">Nutrison Fibre</option>
+                <!-- Need to add More Nutricia feeds can be added here -->
+            </select>
+
+            <button class="btn btn-primary mt-3" onclick="calculateFeed()">Calculate</button>
+            <button class="btn btn-secondary mt-3" onclick="addComparison()">+ Add Another Feed</button>
+        </div>
+
+        <div id="results_container" class="mt-5"></div>
+    </div>
+<!-- JavaScript -->
+    <script>
+        let feedData = {
+            "nutrison_standard": { calories: 1, protein: 0.04, carbs: 0.14, fat: 0.04 }, // per ml
+            "nutrison_2kcal": { calories: 2, protein: 0.08, carbs: 0.28, fat: 0.08 },
+            "nutrison_energy": { calories: 1.5, protein: 0.06, carbs: 0.21, fat: 0.06 },
+            "nutrison_fibre": { calories: 1.3, protein: 0.055, carbs: 0.19, fat: 0.05 }
+        };
+
+        function calculateFeed() {
+            let feedRate = parseFloat(document.getElementById("feed_rate").value) || 0;
+            let duration = parseFloat(document.getElementById("duration").value) || 0;
+            let feedType = document.getElementById("feed_type").value;
+
+            let totalVolume = feedRate * duration;
+            let feedValues = feedData[feedType];
+
+            let totalCalories = totalVolume * feedValues.calories;
+            let totalProtein = totalVolume * feedValues.protein;
+            let totalCarbs = totalVolume * feedValues.carbs;
+            let totalFat = totalVolume * feedValues.fat;
+
+            displayResults(feedType, feedRate, duration, totalVolume, totalCalories, totalProtein, totalCarbs, totalFat);
+        }
+
+        function addComparison() {
+            let newFeedDiv = document.createElement("div");
+            newFeedDiv.className = "card p-4 shadow-sm mt-3";
+            newFeedDiv.innerHTML = `
+                <h4>Compare Another Feed</h4>
+                <label class="form-label mt-3">Feed Rate (ml/hour):</label>
+                <input type="number" class="form-control feed_rate" min="1" value="30">
+
+                <label class="form-label mt-3">Duration (hours):</label>
+                <input type="number" class="form-control duration" min="1" max="24" value="16">
+
+                <label class="form-label mt-3">Select Feed Type:</label>
+                <select class="form-select feed_type">
+                    <option value="nutrison_standard">Nutrison Standard</option>
+                    <option value="nutrison_2kcal">Nutrison 2kcal</option>
+                    <option value="nutrison_energy">Nutrison Energy</option>
+                    <option value="nutrison_fibre">Nutrison Fibre</option>
+                </select>
+
+                <button class="btn btn-success mt-3" onclick="calculateComparison(this)">Calculate</button>
+            `;
+            document.getElementById("results_container").appendChild(newFeedDiv);
+        }
+
+        function calculateComparison(button) {
+            let card = button.closest(".card");
+            let feedRate = parseFloat(card.querySelector(".feed_rate").value) || 0;
+            let duration = parseFloat(card.querySelector(".duration").value) || 0;
+            let feedType = card.querySelector(".feed_type").value;
+
+            let totalVolume = feedRate * duration;
+            let feedValues = feedData[feedType];
+
+            let totalCalories = totalVolume * feedValues.calories;
+            let totalProtein = totalVolume * feedValues.protein;
+            let totalCarbs = totalVolume * feedValues.carbs;
+            let totalFat = totalVolume * feedValues.fat;
+
+            displayResults(feedType, feedRate, duration, totalVolume, totalCalories, totalProtein, totalCarbs, totalFat, card);
+        }
+
+        function displayResults(feedType, feedRate, duration, totalVolume, totalCalories, totalProtein, totalCarbs, totalFat, container = null) {
+            let resultHTML = `
+                <h5>Results for ${feedType.replace("_", " ").toUpperCase()}</h5>
+                <p><strong>Feed Rate:</strong> ${feedRate} ml/hour</p>
+                <p><strong>Duration:</strong> ${duration} hours</p>
+                <p><strong>Total Volume:</strong> ${totalVolume} ml</p>
+                <p><strong>Calories Provided:</strong> ${totalCalories.toFixed(2)} kcal</p>
+                <p><strong>Protein Provided:</strong> ${totalProtein.toFixed(2)} g</p>
+                <p><strong>Carbs Provided:</strong> ${totalCarbs.toFixed(2)} g</p>
+                <p><strong>Fat Provided:</strong> ${totalFat.toFixed(2)} g</p>
+            `;
+
+            if (container) {
+                container.innerHTML += resultHTML;
+            } else {
+                let resultDiv = document.createElement("div");
+                resultDiv.className = "card p-4 shadow-sm mt-3";
+                resultDiv.innerHTML = resultHTML;
+                document.getElementById("results_container").appendChild(resultDiv);
+            }
+        }
+    </script>
+{% endblock %}
